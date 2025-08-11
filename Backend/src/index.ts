@@ -10,10 +10,11 @@ const PORT = process.env.PORT
 const URL = process.env.URL!
 const REMOTE_URL = process.env.REMOTE_URL!
 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin:[URL,REMOTE_URL],
+    origin:REMOTE_URL,
     methods:'*',
     allowedHeaders:'*',
 }))
