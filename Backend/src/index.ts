@@ -7,12 +7,13 @@ import router from './routes/searchRouters'
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT
-const URL = process.env.URL
+const URL = process.env.URL!
+const REMOTE_URL = process.env.REMOTE_URL!
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin:URL,
+    origin:[URL,REMOTE_URL],
     methods:'*',
     allowedHeaders:'*',
 }))
