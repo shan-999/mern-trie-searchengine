@@ -14,7 +14,7 @@ const REMOTE_URL = process.env.REMOTE_URL!
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin:REMOTE_URL,
+    origin:"",
     methods:'*',
     allowedHeaders:'*',
 }))
