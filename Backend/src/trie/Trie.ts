@@ -20,8 +20,9 @@ export class Trie {
 
     insert(word: string) {
         let node = this.root
-
-        for (let char of word.toLowerCase()) {
+        word = word.toLocaleLowerCase()
+        
+        for (let char of word) {
             if (!node.children[char]) {
                 node.children[char] = new TrieNode()
             }
@@ -36,8 +37,10 @@ export class Trie {
         const result: string[] = []
         let root = this.root
 
+        prefix = prefix.toLocaleLowerCase()
+
         for (let char of prefix) {
-            if (!root.children[char]) return result
+            if (!root.children[char.toLowerCase()]) return result
 
             root = root.children[char]
         }
@@ -53,7 +56,7 @@ export class Trie {
             }
         }
 
-        dfs(root, prefix.toLocaleLowerCase())
+        dfs(root, prefix)
         return result
     }
 
