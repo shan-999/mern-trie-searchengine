@@ -35,6 +35,7 @@ export default function SearchPage() {
 
   const handleReset = () => {
     setsearchResult([])
+    setSearchQuery('')
   }
 
 
@@ -57,6 +58,7 @@ export default function SearchPage() {
     }
   }, [])
 
+
   useEffect(() => {
     const fetchData = async () => {
       await initializeTrie()
@@ -66,10 +68,6 @@ export default function SearchPage() {
 
     fetchData();
   }, [])
-
-  useEffect(() => {
-    console.log(searchResult)
-  }, [searchResult])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
