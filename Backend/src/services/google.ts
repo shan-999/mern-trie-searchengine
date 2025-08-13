@@ -11,7 +11,6 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
 
 export async function searchGoogle(term: string) {
     try {
-        console.log(GOOGEL_URL,GOOGLE_SEARCH_ENGINE_ID,GOOGLE_API_KEY)
         const res = await axios.get(GOOGEL_URL as string, {
             params: {
                 key: GOOGLE_API_KEY,
@@ -20,10 +19,17 @@ export async function searchGoogle(term: string) {
             },
         })
 
-        if(res.data){
+        if (res.data) {
             return res.data
         }
     } catch (error) {
-        console.log('got a error from serachGoogle', error)
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 429) {
+                throw new Error("Google API rate limit exceeded. Please try again later.");
+            }
+            throw new Error(error.message); 
+        }
+
+        throw new Error(String(error));
     }
 }

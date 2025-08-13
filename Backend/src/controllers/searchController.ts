@@ -6,36 +6,40 @@ import { searchGoogle } from "../services/google";
 
 
 export const handleSearch = async (req: Request, res: Response) => {
-    const term  = req.query.q as string
+    const term = req.query.q as string
     try {
         if (!term) res.status(400).json({ error: 'Missing serach term' })
 
         await insertSearch(term)
         const data = await searchGoogle(term)
 
-        res.status(200).json({success:true,data})
+        res.status(200).json({ success: true, data })
     } catch (error) {
-        res.status(500).json({error:'An unexpected error occurred. Please try again later.'})
+        if (error instanceof Error) {
+            res.status(429).json({ message: error.message }); 
+        } else {
+            res.status(500).json({ message: "Unknown server error" });
+        }
     }
 }
 
 
-export const handleSuggections = async (req:Request, res:Response) => {
-    const {prefix} = req.body
+export const handleSuggections = async (req: Request, res: Response) => {
+    const { prefix } = req.body
     try {
-        const suggestions  = getSuggestions(prefix || '')
-        res.status(200).json({success:true,suggestions})
+        const suggestions = getSuggestions(prefix || '')
+        res.status(200).json({ success: true, suggestions })
     } catch (error) {
-        res.status(500).json({error:'An unexpected error occurred. Please try again later.'})
+        res.status(500).json({ error: 'An unexpected error occurred. Please try again later.' })
     }
 }
 
 
-export const takeSuggestionsFromDB = async (req:Request, res:Response) => {
+export const takeSuggestionsFromDB = async (req: Request, res: Response) => {
     try {
         const data = await initializeTrie()
-        res.status(200).json({success:true, data})
+        res.status(200).json({ success: true, data })
     } catch (error) {
-        res.status(500).json({error:'An unexpected error occurred. Please try again later.'})
+        res.status(500).json({ error: 'An unexpected error occurred. Please try again later.' })
     }
 }

@@ -3,9 +3,10 @@ import { handleSearch, handleSuggections, takeSuggestionsFromDB } from '../contr
 
 const router = express.Router()
 
-router.get('/',(req,res) => {
-    console.log(req.url)
-})
+router.use((req, res, next) => {
+  console.log('req.method , req.url',req.method, req.url);
+  next();
+});
 
 router.get('/search',handleSearch)
 router.get('/takeSuggections',takeSuggestionsFromDB)

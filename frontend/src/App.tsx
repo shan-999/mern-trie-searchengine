@@ -3,11 +3,15 @@
 import type React from "react"
 
 import { useEffect, useRef, useState } from "react"
-import { Search, X } from "lucide-react"
+import { Search, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getSearchResult, initializeTrie, getSuggestions } from "./services/search"
 import type { GoogleSearchItem } from "./type/type"
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 
 export default function SearchPage() {
@@ -15,8 +19,10 @@ export default function SearchPage() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [suggestion, setSuggestion] = useState<string[]>([])
   const [searchResult, setsearchResult] = useState<GoogleSearchItem[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const inp = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
+
 
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -26,12 +32,27 @@ export default function SearchPage() {
     setShowSuggestions(data.length > 0)
   }
 
-  const handleSearch = async () => {
-    setShowSuggestions(false)
-    const data = await getSearchResult(searchQuery)
+  const handleSearch = async (query: string = searchQuery) => {
 
-    setsearchResult(data.data.data.items || []);
-  }
+    try {
+      setIsLoading(true)
+      setShowSuggestions(false);
+      setSearchQuery(query);
+
+      const data = await getSearchResult(query);
+
+      setsearchResult(data.data.data.items || []);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong!");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    } finally {
+      setIsLoading(false)
+    }
+
+  };
 
   const handleReset = () => {
     setsearchResult([])
@@ -44,6 +65,14 @@ export default function SearchPage() {
       handleSearch()
     }
   }
+
+  // useEffect(() => {
+  //   console.log(searchQuery);
+  // },[searchQuery])
+
+  // useEffect(() => {
+  //   console.log(searchResult)
+  // },[searchResult])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -98,14 +127,38 @@ export default function SearchPage() {
                 className="flex-1 bg-transparent border-none text-white placeholder-gray-400 text-lg px-6 py-4 focus:outline-none focus:ring-0 rounded-l-full"
               />
               <Button
-                onClick={handleSearch}
+                onClick={() => handleSearch(searchQuery)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-r-full border-none"
                 size="lg"
               >
-                <Search className="w-5 h-5" />
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Search className="w-5 h-5" />
+                )}
               </Button>
             </div>
           </div>
+
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark" // Dark background
+            toastStyle={{
+              backgroundColor: "#1e1e1e", // custom dark gray
+              color: "#ffffff",           // white text
+              fontSize: "14px",
+              borderRadius: "8px",
+              padding: "12px 16px",
+            }}
+          />
 
           {/* Suggestions Container with fixed height and ref */}
           {showSuggestions && (
@@ -124,7 +177,7 @@ export default function SearchPage() {
                     onClick={() => {
                       setSearchQuery(suggestion)
                       setShowSuggestions(false)
-                      handleSearch()
+                      handleSearch(suggestion)
                     }}
                   >
                     {suggestion}
